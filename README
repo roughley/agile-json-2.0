@@ -1,0 +1,24 @@
+This is the Java Json 2.0 Library. It's main usage is to automatically serialize
+java classes to syntatically correct Json.
+
+The two main ways of using it are:
+
+1. Have a class implement the Jsonable Interface
+This signals the framework that it is ok to take the public variables of this class
+and create a json object of the form:
+
+variable_name : variable_value.
+
+Keep in mind that the ACTUAL variable name is the variable name that comes out
+in the Json.
+
+2. Annotate a method with the @TOJSON annotation. This tells the framework
+that that method is a getter method whose result is to be serialized to JSON.
+
+Two main things here to notice:
+	a. The getter method must have no arguements
+	b. The name of the resulting json field will be the method's name
+		lower cased with the first three letters dropped (get does
+		not look good in variable names =p)
+
+I hope that this is of use to you as much as it has been to me.
