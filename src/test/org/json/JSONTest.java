@@ -28,102 +28,200 @@ import static org.junit.Assert.*;
  */
 public class JSONTest {
 
-    protected static class PublicFieldJsonableTestObject implements Jsonable {
-      public String name;
-      public int age;
-      public Integer years_of_college;
-      public double weight;
-      public Double height;
-      public PublicFieldJsonableTestObject[] relatives;
-      public String[] friends;
-      public byte[] test;
-      
-      public PublicFieldJsonableTestObject() {
-        name = "Michael Gottesman";
-        age = 18;
-        years_of_college = 1;
-        weight = 160.0;
-        height = 60.1;
-        relatives = new PublicFieldJsonableTestObject[3];
-        relatives[0] = new PublicFieldJsonableTestObject("Jacob Saxon");
-        relatives[1] = new PublicFieldJsonableTestObject("Shoshi Gottesman");
-        relatives[2] = new PublicFieldJsonableTestObject("Leopold Gottesman");
-        friends = new String[2];
-        friends[0] = new String("Gregory Hillman");
-        friends[1] = new String("Alex Fleming");
-        test = new String("test123412341234").getBytes();
-      }
-      
-      public PublicFieldJsonableTestObject(String name) {
-        this.name = name;
-      }
+  protected static class PublicFieldJsonableTestObject implements Jsonable {
+
+    public String name;
+    public int age;
+    public Integer years_of_college;
+    public double weight;
+    public Double height;
+    public PublicFieldJsonableTestObject[] relatives;
+    public String[] friends;
+    public byte[] test;
+
+    public PublicFieldJsonableTestObject() {
+      name = "Michael Gottesman";
+      age = 18;
+      years_of_college = 1;
+      weight = 160.0;
+      height = 60.1;
+      relatives = new PublicFieldJsonableTestObject[3];
+      relatives[0] = new PublicFieldJsonableTestObject("Jacob Saxon");
+      relatives[1] = new PublicFieldJsonableTestObject("Shoshi Gottesman");
+      relatives[2] = new PublicFieldJsonableTestObject("Leopold Gottesman");
+      friends = new String[2];
+      friends[0] = new String("Gregory Hillman");
+      friends[1] = new String("Alex Fleming");
+      test = new String("test123412341234").getBytes();
     }
-    
-    protected static class GetAccsrJsonableTestObject {
-      protected String name;
-      protected int age;
-      protected Integer years_of_college;
-      protected double weight;
-      protected Double height;
-      protected GetAccsrJsonableTestObject[] relatives;
-      protected String[] friends;
-      
-      public GetAccsrJsonableTestObject() {
-        name = "Michael Gottesman";
-        age = 18;
-        years_of_college = 1;
-        weight = 160.0;
-        height = 60.1;
-        relatives = new GetAccsrJsonableTestObject[3];
-        relatives[0] = new GetAccsrJsonableTestObject("Jacob Saxon");
-        relatives[1] = new GetAccsrJsonableTestObject("Shoshi Gottesman");
-        relatives[2] = new GetAccsrJsonableTestObject("Leopold Gottesman");
-        friends = new String[2];
-        friends[0] = new String("Gregory Hillman");
-        friends[1] = new String("Alex Fleming");
-      }
-      
-      public GetAccsrJsonableTestObject(String name) {
-        this.name = name;
-      }
+
+    public PublicFieldJsonableTestObject(String name) {
+      this.name = name;
+    }
+    }
+
+  protected static class GetAccsrJsonableTestObject {
+
+    protected String name;
+    protected int age;
+    protected Integer years_of_college;
+    protected double weight;
+    protected Double height;
+    protected GetAccsrJsonableTestObject[] relatives;
+    protected String[] friends;
+    public byte[] test;
+
+    public GetAccsrJsonableTestObject() {
+      name = "Michael Gottesman";
+      age = 18;
+      years_of_college = 1;
+      weight = 160.0;
+      height = 60.1;
+      relatives = new GetAccsrJsonableTestObject[3];
+      relatives[0] = new GetAccsrJsonableTestObject("Jacob Saxon");
+      relatives[1] = new GetAccsrJsonableTestObject("Shoshi Gottesman");
+      relatives[2] = new GetAccsrJsonableTestObject("Leopold Gottesman");
+      friends = new String[2];
+      friends[0] = new String("Gregory Hillman");
+      friends[1] = new String("Alex Fleming");
+      test = new String("test123412341234").getBytes();
+    }
+
+    public GetAccsrJsonableTestObject(String name) {
+      this.name = name;
+    }
 
     @TOJSON
     public int getAge() {
       return age;
     }
+
     @TOJSON
     public String[] getFriends() {
       return friends;
     }
+
     @TOJSON
     public Double getHeight() {
       return height;
     }
+
     @TOJSON
     public String getName() {
       return name;
     }
-   @TOJSON
+
+    @TOJSON
     public GetAccsrJsonableTestObject[] getRelatives() {
       return relatives;
     }
-   @TOJSON
+
+    @TOJSON
+    public byte[] getTest() {
+      return test;
+    }
+
+    @TOJSON
     public double getWeight() {
       return weight;
     }
 
-    @TOJSON public Integer getYears_of_college() {
+    @TOJSON
+    public Integer getYears_of_college() {
       return years_of_college;
     }
-      
-      
     }
-    protected static class BothJsonableTestObject extends PublicFieldJsonableTestObject {
+
+  public static class BothJsonableTestObject extends PublicFieldJsonableTestObject {
+    public BothJsonableTestObject[] relatives;
+    
+    protected String name1;
+    protected int age1;
+    protected Integer years_of_college1;
+    protected double weight1;
+    protected Double height1;
+    protected BothJsonableTestObject[] relatives1;
+    protected String[] friends1;
+    protected byte[] test1;
+    
+    public BothJsonableTestObject() {
+      name = "Michael Gottesman";
+      age = 18;
+      years_of_college = 1;
+      weight = 160.0;
+      height = 60.1;
+      relatives = new BothJsonableTestObject[3];
+      relatives[0] = new BothJsonableTestObject("Jacob Saxon");
+      relatives[1] = new BothJsonableTestObject("Shoshi Gottesman");
+      relatives[2] = new BothJsonableTestObject("Leopold Gottesman");
+      friends = new String[2];
+      friends[0] = new String("Gregory Hillman");
+      friends[1] = new String("Alex Fleming");
+      test = new String("test123412341234").getBytes();
       
+      name1 = "Michael Gottesman";
+      age1 = 18;
+      years_of_college1 = 1;
+      weight1 = 160.0;
+      height1 = 60.1;
+      relatives1 = new BothJsonableTestObject[3];
+      relatives1[0] = new BothJsonableTestObject("Jacob Saxon");
+      relatives1[1] = new BothJsonableTestObject("Shoshi Gottesman");
+      relatives1[2] = new BothJsonableTestObject("Leopold Gottesman");
+      friends1 = new String[2];
+      friends1[0] = new String("Gregory Hillman");
+      friends1[1] = new String("Alex Fleming");
+      test1 = new String("test123412341234").getBytes();
     }
     
-    public JSONTest() {
+    public BothJsonableTestObject(String name) {
+      this.name = name;
+      this.name1 = name;
     }
+
+    @TOJSON
+    public String getName1() {
+      return name1;
+    }
+    
+    @TOJSON
+    public int getAge1() {
+      return age1;
+    }
+
+    @TOJSON
+    public String[] getFriends1() {
+      return friends1;
+    }
+
+    @TOJSON
+    public Double getHeight1() {
+      return height1;
+    }
+
+    @TOJSON
+    public BothJsonableTestObject[] getRelatives1() {
+      return relatives1;
+    }
+
+    @TOJSON
+    public byte[] getTest1() {
+      return test1;
+    }
+
+    @TOJSON
+    public double getWeight1() {
+      return weight1;
+    }
+
+    @TOJSON
+    public Integer getYears_of_college1() {
+      return years_of_college1;
+    }
+    }
+
+  public JSONTest() {
+  }
 
   /**
    * Test of toJSON method, of class JSON.
@@ -138,7 +236,7 @@ public class JSONTest {
     BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject.json"));
     String s = "";
     String expResult = "";
-    while((s = r.readLine()) != null) {
+    while ((s = r.readLine()) != null) {
       expResult += s;
     }
     String result = JSON.toJSON(o);
@@ -156,25 +254,30 @@ public class JSONTest {
     BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject.json"));
     String s = "";
     String expResult = "";
-    while((s = r.readLine()) != null) {
+    while ((s = r.readLine()) != null) {
       expResult += s;
     }
     String result = JSON.toJSON(o);
     JSONObject jsonExpected = new JSONObject(expResult);
     JSONObject jsonResult = new JSONObject(result);
-    // Problem with this test. Results in failure due to relatives being JSONObjects themselves and thus not ordered.
-    // That is the only problem.
-    //assertEquals(0,jsonExpected.compareTo(jsonResult));
+    assertEquals(0, jsonExpected.compareTo(jsonResult));
   }
-}
-//
-//  @Test
-//  public void testBoth() throws Exception {
-//    System.out.println("testJsonableObjectToJson");
-//    Object o = null;
-//    String expResult = "";
-//    String result = JSON.toJSON(o);
-//    assertEquals(expResult, result);
-//    // TODO review the generated test code and remove the default call to fail.
-//    fail("The test case is a prototype.");
-//  }}
+
+  @Test
+  public void testBoth() throws Exception {
+    System.out.println("testBoth");
+    Object o = new BothJsonableTestObject();
+    // TODO: Change file location so test data is independent of file system
+    // In a rush and should be an easy change
+    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject2.json"));
+    String s = "";
+    String expResult = "";
+    while ((s = r.readLine()) != null) {
+      expResult += s;
+    }
+    String result = JSON.toJSON(o);
+    JSONObject jsonExpected = new JSONObject(expResult);
+    JSONObject jsonResult = new JSONObject(result);
+    assertEquals(0, jsonExpected.compareTo(jsonResult));
+  }
+  }

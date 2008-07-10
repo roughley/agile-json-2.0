@@ -24,8 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.annotation.*;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Importand Notes on usage:
@@ -197,9 +195,67 @@ public class JSON {
   }
 
   /**
+   * Refactor of jsonifyFields
+   * @param o
+   * @param c
+   * @param s
+   * @param alreadyVisited
+   * @throws java.lang.IllegalAccessException
+   * @throws org.json.JSONException 
+   */
+  private static void jsonifyFields(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
+    Field[] fields = c.getFields();
+    for (int i = 0; i < fields.length; i++) {
+      Object fieldValue = fields[i].get(o);
+      if (!alreadyVisited.contains(fieldValue)) {
+        s.key(fields[i].getName());
+        s.value(JSON.toJSON(fieldValue, alreadyVisited));
+      }
+    }
+  }
+
+  /**
+   * Note I am assuming your methods are named something like "getObject".
+   * With that in my mind I set the name of the json object to the substring
+   * from 3 to the end, downcasing it, resulting in get being dropped
+   * and the second word capitalization being lowered. So you get
+   * object.
+   * @param o
+   * @param c
+   * @param s
+   * @param alreadyVisited
+   * @throws java.lang.IllegalAccessException
+   * @throws org.json.JSONException 
+   */
+  private static void jsonifyGetters(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
+    if(c.toString().equals("BothJsonableTestObject")) {
+      int k = 0;
+      k += 1;
+    }
+    Method[] methods = c.getMethods();
+    for (int i = 0; i < methods.length; i++) {
+      if (methods[i].getParameterTypes().length == 0 && methods[i].isAnnotationPresent(TOJSON.class)) {
+        Object returnValue;
+        try {
+          returnValue = methods[i].invoke(o, ((Object[]) null));
+        } catch (Exception e) {
+          continue;
+        }
+        if (!alreadyVisited.contains(returnValue)) {
+          s.key(methods[i].getName().substring(3).toLowerCase());
+          s.value(JSON.toJSON(returnValue, alreadyVisited));
+        } else {
+          System.out.println("Crap");
+        }
+      }
+    }
+  }
+
+  /**
    * Work Horse of the library
    * @param o
    * @param alreadyVisited
+   * @return Proper Json String
    * @throws org.json.JSONException
    * @throws java.lang.IllegalAccessException
    */
@@ -210,42 +266,16 @@ public class JSON {
     }
 
     Class c = o.getClass();
-    if (!PRIMITIVES.contains(c)) {
-      alreadyVisited.add(o);
+    if (!PRIMITIVES.contains(c) || String.class.isAssignableFrom(c)) {
+        alreadyVisited.add(o);
     }
 
     JSONStringer s = new NoEscapesStringer();
 
     if ((Jsonable.class).isAssignableFrom(c)) {
       s.object();
-      Field[] fields = c.getFields();
-      for (int i = 0; i < fields.length; i++) {
-        Object fieldValue = fields[i].get(o);
-        if (!alreadyVisited.contains(fieldValue)) {
-          s.key(fields[i].getName());
-          s.value(JSON.toJSON(fieldValue, alreadyVisited));
-        }
-      }
-      Method[] methods = c.getMethods();
-      // Note I am assuming your methods are named something like "getObject".
-      // With that in my mind I set the name of the json object to the substring
-      // from 3 to the end, downcasing it, resulting in get being dropped
-      // and the second word capitalization being lowered. So you get
-      // object.
-      for (int i = 0; i < methods.length; i++) {
-        if (methods[i].getParameterTypes().length == 0 && methods[i].isAnnotationPresent(TOJSON.class)) {
-          Object returnValue;
-          try {
-            returnValue = methods[i].invoke(null);
-          } catch (Exception e) {
-            continue;
-          }
-          if (!alreadyVisited.contains(returnValue)) {
-            s.key(methods[i].getName().substring(3).toLowerCase());
-            s.value(JSON.toJSON(returnValue, alreadyVisited));
-          }
-        }
-      }
+      jsonifyFields(o, c, s, alreadyVisited);
+      jsonifyGetters(o, c, s, alreadyVisited);
       s.endObject();
     } else if ((Object[].class).isAssignableFrom(c)) {
       s.array();
@@ -263,7 +293,7 @@ public class JSON {
           try {
             return "\"" + new String((byte[]) o, "UTF-8") + "\"";
           } catch (UnsupportedEncodingException ex) {
-            return "\"" + new String((byte[])o) + "\"";
+            return "\"" + new String((byte[]) o) + "\"";
           }
         } else {
           s.array();
@@ -279,26 +309,7 @@ public class JSON {
         return '"' + escape(o.toString()) + '"';
       } else {
         s.object();
-        Method[] methods = c.getMethods();
-        // Note I am assuming your methods are named something like "getObject".
-        // With that in my mind I set the name of the json object to the substring
-        // from 3 to the end, downcasing it, resulting in get being dropped
-        // and the second word capitalization being lowered. So you get
-        // object.
-        for (int i = 0; i < methods.length; i++) {
-          if (methods[i].getParameterTypes().length == 0 && methods[i].isAnnotationPresent(TOJSON.class)) {
-            Object returnValue;
-            try {
-              returnValue = methods[i].invoke(o, ((Object[]) null));
-            } catch (Exception e) {
-              continue;
-            }
-            if (!alreadyVisited.contains(returnValue)) {
-              s.key(methods[i].getName().substring(3).toLowerCase());
-              s.value(JSON.toJSON(returnValue, alreadyVisited));
-            }
-          }
-        }
+        jsonifyGetters(o, c, s, alreadyVisited);
         s.endObject();
       }
     }

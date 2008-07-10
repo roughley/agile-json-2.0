@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its
@@ -1409,11 +1407,36 @@ public class JSONObject implements Comparable {
         if (!iEObject.equals(iRObject)) {
           return -1;
         }
-        if (this.get(iEObject).equals(other.get(iRObject))) {
+        Object o1 = this.get(iEObject);
+        Object o2 = this.get(iRObject);
+        System.out.println(o1);
+        System.out.println(o2);
+        Class c1 = o1.getClass();
+        Class c2 = o2.getClass();
+        if(c1 == JSONObject.class && c2 == JSONObject.class && ((JSONObject)o1).compareTo(o2) != 0) {
+          return -1;
+        } else if (c1 == JSONArray.class && c2 == JSONArray.class) {
+          JSONArray a1 = (JSONArray)o1;
+          JSONArray a2 = (JSONArray)o2;
+          if(a1.length() != a2.length())
+            return -1;
+          for(int j = 0;j < a1.length();j++) {
+            Object _o1 = a1.get(j);
+            Object _o2 = a2.get(j);
+            if(Comparable.class.isAssignableFrom(o1.getClass()) && Comparable.class.isAssignableFrom(o2.getClass())) {
+              if(((Comparable)o1).compareTo((Comparable)o2) != 0) {
+                return -1;
+              }
+            } else {
+              if(!_o1.equals(_o2)) {
+                return -1;
+              }
+            }
+          }
+        } else if (!this.get(iEObject).toString() .equals(other.get(iRObject).toString())) {
           return -1;
         }
       } catch (JSONException ex) {
-        System.out.println("-1 due to exception");
         return -1;
       }
     }
