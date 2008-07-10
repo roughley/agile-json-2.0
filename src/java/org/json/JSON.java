@@ -18,11 +18,14 @@
 package org.json;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.annotation.*;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Importand Notes on usage:
@@ -43,7 +46,9 @@ public class JSON {
    */
   private static Object getObjectForPrimitive(Object v) throws Exception {
     Class c = v.getClass();
-    if (c == Boolean.class) {
+    if (c == Byte.class) {
+      return new String(new byte[]{((Byte) v).byteValue()});
+    } else if (c == Boolean.class) {
       return new Boolean((Boolean) v);
     } else if (c == Character.class) {
       return new Character((Character) v);
@@ -111,6 +116,8 @@ public class JSON {
   }
   private static Class[] _primitives = {Object.class, Short.class, Byte.class, Character.class, Boolean.class, Integer.class, Float.class, Double.class, Long.class};
   protected static HashSet PRIMITIVES = new HashSet(Arrays.asList(_primitives));
+  private static Class[] _primitivearrays = {short[].class, byte[].class, char[].class, boolean[].class, int[].class, float[].class, double[].class, long[].class};
+  protected static HashSet PRIMITIVEARRAYS = new HashSet(Arrays.asList(_primitivearrays));
 
   /**
    * Public interface to protected toJSON method.
@@ -241,18 +248,32 @@ public class JSON {
       }
       s.endObject();
     } else if ((Object[].class).isAssignableFrom(c)) {
-
+      s.array();
       Object[] array = (Object[]) o;
       Object _o;
       Class _c;
-      s.array();
       for (int j = 0; j < array.length; j++) {
         s.value(JSON.toJSON(array[j], alreadyVisited));
       }
       s.endArray();
     } else {
       // Check this part
-      if (c.isPrimitive() || PRIMITIVES.contains(c) || c == JSONObject.class || c == JSONArray.class) {
+      if (PRIMITIVEARRAYS.contains(c)) {
+        if ((byte[].class).isAssignableFrom(c)) {
+          try {
+            return "\"" + new String((byte[]) o, "UTF-8") + "\"";
+          } catch (UnsupportedEncodingException ex) {
+            return "\"" + new String((byte[])o) + "\"";
+          }
+        } else {
+          s.array();
+          Object[] array = ((Object[]) o);
+          for (int i = 0; i < array.length; i++) {
+            s.value(String.valueOf(array[i]));
+          }
+          s.endArray();
+        }
+      } else if (c.isPrimitive() || PRIMITIVES.contains(c) || c == JSONObject.class || c == JSONArray.class) {
         return o.toString();
       } else if (c == String.class) {
         return '"' + escape(o.toString()) + '"';
@@ -268,8 +289,10 @@ public class JSON {
           if (methods[i].getParameterTypes().length == 0 && methods[i].isAnnotationPresent(TOJSON.class)) {
             Object returnValue;
             try {
-              returnValue = methods[i].invoke(o,((Object[])null));
-            } catch (Exception e) { continue; }
+              returnValue = methods[i].invoke(o, ((Object[]) null));
+            } catch (Exception e) {
+              continue;
+            }
             if (!alreadyVisited.contains(returnValue)) {
               s.key(methods[i].getName().substring(3).toLowerCase());
               s.value(JSON.toJSON(returnValue, alreadyVisited));
@@ -281,4 +304,4 @@ public class JSON {
     }
     return s.toString();
   }
-}
+  }

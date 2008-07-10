@@ -19,7 +19,6 @@ package org.json;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Iterator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -37,6 +36,7 @@ public class JSONTest {
       public Double height;
       public PublicFieldJsonableTestObject[] relatives;
       public String[] friends;
+      public byte[] test;
       
       public PublicFieldJsonableTestObject() {
         name = "Michael Gottesman";
@@ -51,6 +51,7 @@ public class JSONTest {
         friends = new String[2];
         friends[0] = new String("Gregory Hillman");
         friends[1] = new String("Alex Fleming");
+        test = new String("test123412341234").getBytes();
       }
       
       public PublicFieldJsonableTestObject(String name) {
@@ -134,7 +135,7 @@ public class JSONTest {
     Object o = new PublicFieldJsonableTestObject();
     // TODO: Change file location so test data is independent of file system
     // In a rush and should be an easy change
-    BufferedReader r = new BufferedReader(new FileReader("/home/gottesmm/Desktop/json/json/src/test/org/json/correct_output_TestJsonableObject.json"));
+    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject.json"));
     String s = "";
     String expResult = "";
     while((s = r.readLine()) != null) {
@@ -152,7 +153,7 @@ public class JSONTest {
     Object o = new GetAccsrJsonableTestObject();
     // TODO: Change file location so test data is independent of file system
     // In a rush and should be an easy change
-    BufferedReader r = new BufferedReader(new FileReader("/home/gottesmm/Desktop/json/json/src/test/org/json/correct_output_TestJsonableObject.json"));
+    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject.json"));
     String s = "";
     String expResult = "";
     while((s = r.readLine()) != null) {
