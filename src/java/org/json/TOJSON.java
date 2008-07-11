@@ -37,4 +37,7 @@ import java.lang.annotation.Target;
 
   @Target({ElementType.METHOD})
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface TOJSON{ }
+  public @interface TOJSON {
+    int prefixEndIndex() default 3;
+    int contentEndIndex() default -1;
+  }

@@ -1409,8 +1409,6 @@ public class JSONObject implements Comparable {
         }
         Object o1 = this.get(iEObject);
         Object o2 = this.get(iRObject);
-        System.out.println(o1);
-        System.out.println(o2);
         Class c1 = o1.getClass();
         Class c2 = o2.getClass();
         if(c1 == JSONObject.class && c2 == JSONObject.class && ((JSONObject)o1).compareTo(o2) != 0) {

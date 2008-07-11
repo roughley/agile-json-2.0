@@ -112,14 +112,18 @@ public class JSON {
       throw new JSONException("Misplaced key.");
     }
   }
-  private static Class[] _primitives = {Object.class, Short.class, Byte.class, Character.class, Boolean.class, Integer.class, Float.class, Double.class, Long.class};
+  private static Class[] _primitives = {Object.class, String.class, Short.class, Byte.class, Character.class, Boolean.class, Integer.class, Float.class, Double.class, Long.class};
   protected static HashSet PRIMITIVES = new HashSet(Arrays.asList(_primitives));
-  private static Class[] _primitivearrays = {short[].class, byte[].class, char[].class, boolean[].class, int[].class, float[].class, double[].class, long[].class};
+  private static Class[] _primitivearrays = {
+    Short[].class, Byte[].class, Character[].class, Boolean[].class, Integer[].class, Float[].class, Double[].class, Long[].class,
+    short[].class, byte[].class, char[].class, boolean[].class, int[].class, float[].class, double[].class, long[].class
+  };
   protected static HashSet PRIMITIVEARRAYS = new HashSet(Arrays.asList(_primitivearrays));
 
   /**
    * Public interface to protected toJSON method.
    * @param o
+   * @return valid Json
    * @throws org.json.JSONException
    * @throws java.lang.IllegalAccessException
    */
@@ -214,6 +218,17 @@ public class JSON {
     }
   }
 
+  public static void jsonifyArray(Object o, JSONStringer s, HashSet alreadyVisited) throws JSONException, IllegalAccessException {
+    s.array();
+    Object[] array = (Object[]) o;
+    Object _o;
+    Class _c;
+    for (int j = 0; j < array.length; j++) {
+      s.value(JSON.toJSON(array[j], alreadyVisited));
+    }
+    s.endArray();
+  }
+
   /**
    * Note I am assuming your methods are named something like "getObject".
    * With that in my mind I set the name of the json object to the substring
@@ -224,17 +239,16 @@ public class JSON {
    * @param c
    * @param s
    * @param alreadyVisited
+   * @return boolean on whether any items were written.
    * @throws java.lang.IllegalAccessException
    * @throws org.json.JSONException 
    */
-  private static void jsonifyGetters(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
-    if(c.toString().equals("BothJsonableTestObject")) {
-      int k = 0;
-      k += 1;
-    }
+  private static boolean jsonifyGetters(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
+    boolean anyOutput = false;
     Method[] methods = c.getMethods();
     for (int i = 0; i < methods.length; i++) {
-      if (methods[i].getParameterTypes().length == 0 && methods[i].isAnnotationPresent(TOJSON.class)) {
+      TOJSON a;
+      if (methods[i].getParameterTypes().length == 0 && (a = methods[i].getAnnotation(TOJSON.class)) != null) {
         Object returnValue;
         try {
           returnValue = methods[i].invoke(o, ((Object[]) null));
@@ -242,13 +256,19 @@ public class JSON {
           continue;
         }
         if (!alreadyVisited.contains(returnValue)) {
-          s.key(methods[i].getName().substring(3).toLowerCase());
+          anyOutput = true;
+          if (a.contentEndIndex() == -1) {
+            s.key(methods[i].getName().substring(a.prefixEndIndex()).toLowerCase());
+          } else {
+            s.key(methods[i].getName().substring(a.prefixEndIndex(), a.contentEndIndex()).toLowerCase());
+          }
           s.value(JSON.toJSON(returnValue, alreadyVisited));
         } else {
-          System.out.println("Crap");
+          continue;
         }
       }
     }
+    return anyOutput;
   }
 
   /**
@@ -261,40 +281,43 @@ public class JSON {
    */
   protected static String toJSON(Object o, HashSet alreadyVisited) throws JSONException, IllegalAccessException {
 
+    // If null return JSON's null value, null
     if (o == null) {
       return "null";
     }
 
     Class c = o.getClass();
-    if (!PRIMITIVES.contains(c) || String.class.isAssignableFrom(c)) {
-        alreadyVisited.add(o);
+    // Make sure that given a primitive, it is not added to already visited
+    // This is for two reasons:
+    // 1. Classes are sealed so can not point to other objects.
+    // 2. String, et. al., have overridden equals methods which is true
+    //     given equality of value, not equality of reference.
+    // This results in the loss of values in the json representation
+    if (!PRIMITIVES.contains(c)) {
+      alreadyVisited.add(o);
     }
 
     JSONStringer s = new NoEscapesStringer();
 
+    // If Jsonable, handle like a Jsonable
     if ((Jsonable.class).isAssignableFrom(c)) {
       s.object();
       jsonifyFields(o, c, s, alreadyVisited);
       jsonifyGetters(o, c, s, alreadyVisited);
       s.endObject();
     } else if ((Object[].class).isAssignableFrom(c)) {
-      s.array();
-      Object[] array = (Object[]) o;
-      Object _o;
-      Class _c;
-      for (int j = 0; j < array.length; j++) {
-        s.value(JSON.toJSON(array[j], alreadyVisited));
-      }
-      s.endArray();
+      jsonifyArray(o, s, alreadyVisited);
     } else {
       // Check this part
       if (PRIMITIVEARRAYS.contains(c)) {
         if ((byte[].class).isAssignableFrom(c)) {
           try {
-            return "\"" + new String((byte[]) o, "UTF-8") + "\"";
+            return "\"" + escape(new String((byte[]) o, "UTF-8")) + "\"";
           } catch (UnsupportedEncodingException ex) {
-            return "\"" + new String((byte[]) o) + "\"";
+            return "\"" + escape(new String((byte[]) o)) + "\"";
           }
+        } else if ((char[].class).isAssignableFrom(c)) {
+            return "\"" + escape(new String((char[]) o)) + "\"";
         } else {
           s.array();
           Object[] array = ((Object[]) o);
@@ -309,7 +332,9 @@ public class JSON {
         return '"' + escape(o.toString()) + '"';
       } else {
         s.object();
-        jsonifyGetters(o, c, s, alreadyVisited);
+        if (!jsonifyGetters(o, c, s, alreadyVisited)) {
+
+        }
         s.endObject();
       }
     }

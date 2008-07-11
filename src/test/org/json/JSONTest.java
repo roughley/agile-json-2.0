@@ -223,6 +223,33 @@ public class JSONTest {
   public JSONTest() {
   }
 
+  
+  @Test
+  public void testJsonablePrimitiveActual() throws JSONException, IllegalAccessException {
+    Jsonable j = new Jsonable() {
+      public byte pByte = 126;
+      public short pShort = 32766;
+      public int pInt = 5;
+      public long pLong = 9233456;
+      public float pFloat = 12.345F;
+      public double pDouble = 954.1245;
+      public boolean pBoolean = true;
+      public char pChar = 'b';
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{\"pByte\":126,\"pShort\":32766,\"pInt\":5,\"pLong\":9233456,\"pFloat\":12.345,\"pDouble\":954.1245,\"pBoolean\":true,\"pChar\":b}";
+    System.out.println("Expected: " + exp);
+    System.out.print("Actual: " +s);
+    assertEquals(s,exp);
+  }
+  
+  @Test
+  public void testJsonablePrimitiveObject() {
+    Jsonable j = new Jsonable() {
+      public Integer i;
+    };
+  }
+  
   /**
    * Test of toJSON method, of class JSON.
    * @throws java.lang.Exception 
@@ -263,21 +290,21 @@ public class JSONTest {
     assertEquals(0, jsonExpected.compareTo(jsonResult));
   }
 
-  @Test
-  public void testBoth() throws Exception {
-    System.out.println("testBoth");
-    Object o = new BothJsonableTestObject();
-    // TODO: Change file location so test data is independent of file system
-    // In a rush and should be an easy change
-    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject2.json"));
-    String s = "";
-    String expResult = "";
-    while ((s = r.readLine()) != null) {
-      expResult += s;
-    }
-    String result = JSON.toJSON(o);
-    JSONObject jsonExpected = new JSONObject(expResult);
-    JSONObject jsonResult = new JSONObject(result);
-    assertEquals(0, jsonExpected.compareTo(jsonResult));
-  }
+//  @Test
+//  public void testBoth() throws Exception {
+//    System.out.println("testBoth");
+//    Object o = new BothJsonableTestObject();
+//    // TODO: Change file location so test data is independent of file system
+//    // In a rush and should be an easy change
+//    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject2.json"));
+//    String s = "";
+//    String expResult = "";
+//    while ((s = r.readLine()) != null) {
+//      expResult += s;
+//    }
+//    String result = JSON.toJSON(o);
+//    JSONObject jsonExpected = new JSONObject(expResult);
+//    JSONObject jsonResult = new JSONObject(result);
+//    assertEquals(0, jsonExpected.compareTo(jsonResult));
+//  }
   }
