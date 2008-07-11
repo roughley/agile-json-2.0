@@ -10,9 +10,18 @@ and create a json object of the form:
 variable_name : variable_value.
 
 Keep in mind that the ACTUAL variable name is the variable name that comes out
-in the Json.
+in the Json. So if I had a class named:
 
-2. Annotate a method with the @TOJSON annotation. This tells the framework
+Object o = new Object() {
+       public String myName = "Michael";
+       protected String myProtectedName = "Samuel";
+       private String myPrivateName = "Gottesman";
+};
+
+The resultant would be:
+JSON.toJSON(o) => {"myName":"Michael"};
+
+2. Annotate a non-JsonableObject's method with the @TOJSON annotation. This tells the framework
 that that method is a getter method whose result is to be serialized to JSON.
 
 Two main things here to notice:
@@ -20,5 +29,7 @@ Two main things here to notice:
 	b. The name of the resulting json field will be the method's name
 		lower cased with the first three letters dropped (get does
 		not look good in variable names =p)
+
+NOTE JSONABLE OBJECTS w/@TOJSON METHODS WILL RESULT IN ERRORS. DO THAT AT YOUR OWN RISK.
 
 I hope that this is of use to you as much as it has been to me.

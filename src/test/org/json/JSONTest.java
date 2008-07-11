@@ -132,8 +132,15 @@ public class JSONTest {
     }
     }
 
-  public static class BothJsonableTestObject extends PublicFieldJsonableTestObject {
+  public static class BothJsonableTestObject implements Jsonable{
+    public String name;
+    public int age;
+    public Integer years_of_college;
+    public double weight;
+    public Double height;
     public BothJsonableTestObject[] relatives;
+    public String[] friends;
+    public byte[] test;
     
     protected String name1;
     protected int age1;
@@ -226,6 +233,7 @@ public class JSONTest {
   
   @Test
   public void testJsonablePrimitiveActual() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonablePrimitiveActual");
     Jsonable j = new Jsonable() {
       public byte pByte = 126;
       public short pShort = 32766;
@@ -237,19 +245,197 @@ public class JSONTest {
       public char pChar = 'b';
     };
     String s = JSON.toJSON(j);
-    String exp = "{\"pByte\":126,\"pShort\":32766,\"pInt\":5,\"pLong\":9233456,\"pFloat\":12.345,\"pDouble\":954.1245,\"pBoolean\":true,\"pChar\":b}";
-    System.out.println("Expected: " + exp);
-    System.out.print("Actual: " +s);
+    String exp = "{\"pByte\":126,\"pShort\":32766,\"pInt\":5,\"pLong\":9233456,\"pFloat\":12.345,\"pDouble\":954.1245,\"pBoolean\":true,\"pChar\":\"b\"}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
     assertEquals(s,exp);
   }
   
   @Test
-  public void testJsonablePrimitiveObject() {
+  public void testJsonablePrimitiveObject() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonablePrimitiveObject");
     Jsonable j = new Jsonable() {
-      public Integer i;
+      public Byte pByte = 126;
+      public Short pShort = 32766;
+      public Integer pInt = 5;
+      public Long pLong = 9233456L;
+      public Float pFloat = 12.345F;
+      public Double pDouble = 954.1245;
+      public Boolean pBoolean = true;
+      public Character pChar = 'b';
     };
+    String s = JSON.toJSON(j);
+    String exp = "{\"pByte\":126,\"pShort\":32766,\"pInt\":5,\"pLong\":9233456,\"pFloat\":12.345,\"pDouble\":954.1245,\"pBoolean\":true,\"pChar\":\"b\"}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
   }
   
+  // Note seperate test for byte/char b/c we automatically serialize to string.
+     @Test
+  public void testJsonablePrimitiveActualArray() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonablePrimitiveActualArray");
+    Jsonable j = new Jsonable() {
+      public short[] pShort = new short[] { 32766, 32765, 32764, 32763};
+      public int[] pInt = new int[] {100,200,300,4000,10000};
+      public long[] pLong = new long[] {9233456L,9233455L,9233454L,9233453L};
+      public float[] pFloat = new float[] {12.345F,12.346F,12.347F,12.348F};
+      public double[] pDouble = new double[] {954.1245,954.1244,954.1243,954.1246};
+      public boolean[] pBoolean = new boolean[] {true,false,true,false,false};
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"pShort\":[32766,32765,32764,32763],";
+    exp += "\"pInt\":[100,200,300,4000,10000],";
+    exp += "\"pLong\":[9233456,9233455,9233454,9233453],";
+    exp += "\"pFloat\":[12.345,12.346,12.347,12.348],";
+    exp += "\"pDouble\":[954.1245,954.1244,954.1243,954.1246],";
+    exp += "\"pBoolean\":[true,false,true,false,false]";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
+     
+  @Test
+  public void testJsonablePrimitiveObjectArray() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonablePrimitiveObjectArray");
+    Jsonable j = new Jsonable() {
+      public Short[] pShort = new Short[] { 32766, 32765, 32764, 32763};
+      public Integer[] pInt = new Integer[] {100,200,300,4000,10000};
+      public Long[] pLong = new Long[] {9233456L,9233455L,9233454L,9233453L};
+      public Float[] pFloat = new Float[] {12.345F,12.346F,12.347F,12.348F};
+      public Double[] pDouble = new Double[] {954.1245,954.1244,954.1243,954.1246};
+      public Boolean[] pBoolean = new Boolean[] {true,false,true,false,false};
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"pShort\":[32766,32765,32764,32763],";
+    exp += "\"pInt\":[100,200,300,4000,10000],";
+    exp += "\"pLong\":[9233456,9233455,9233454,9233453],";
+    exp += "\"pFloat\":[12.345,12.346,12.347,12.348],";
+    exp += "\"pDouble\":[954.1245,954.1244,954.1243,954.1246],";
+    exp += "\"pBoolean\":[true,false,true,false,false]";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
+  
+  @Test
+  public void testJsonableString() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonableString");
+    Jsonable j = new Jsonable() {
+      public String name = "Michael Gottesman";
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"name\":\"Michael Gottesman\"";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
+  
+  @Test
+  public void testJsonablePrimitiveByteArray() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonablePrimitiveByteArray");
+    Jsonable j = new Jsonable() {
+      public byte[] name = new String("Michael Gottesman").getBytes();
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"name\":\"Michael Gottesman\"";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
+  
+  @Test
+  public void testJsonablePrimitiveCharArray() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonablePrimitiveCharArray");
+    Jsonable j = new Jsonable() {
+      public char[] name = new String("Michael Gottesman").toCharArray();
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"name\":\"Michael Gottesman\"";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
+  
+  @Test
+  public void testJsonableObjectArray() throws JSONException, JSONException, IllegalAccessException {
+    System.out.println("testJsonableObjectArray");
+   final Object o1 = new Object() {
+      public String toString() {
+       return  "I am Object 1";
+      };
+    };
+    final Object o2 = new Object() {
+      public String toString() {
+       return  "I am Object 2";
+      };
+    };
+        final Object o3 = new Object() {
+      public String toString() {
+       return  "I am Object 3";
+      };
+    };
+    Jsonable j = new Jsonable() {
+      public Object[] objects = new Object[] {o1,o2,o3};
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{\"objects\":[\"I am Object 1\",\"I am Object 2\",\"I am Object 3\"]}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" + s);
+    assertEquals(exp,s);
+  }
+    @Test
+    public void testJsonableObjectByteArray() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonableObjectByteArray");
+    final String t = "Michael Gottesman";
+    final byte[] b = t.getBytes();
+    final Byte[] B = new Byte[b.length];
+    for(int i = 0;i < B.length;i++) {
+      B[i] = new Byte(b[i]);
+    }
+    Jsonable j = new Jsonable() {
+      public Byte[] name = B;
+    };
+    
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"name\":\"Michael Gottesman\"";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
+  
+  @Test
+  public void testJsonableObjectCharArray() throws JSONException, IllegalAccessException {
+    System.out.println("testJsonableObjectCharArray");
+    final String t = "Michael Gottesman";
+    char[] c1 = t.toCharArray();
+    final Character[] c2 = new Character[c1.length];
+    for(int i = 0;i < c1.length;i++) {
+      c2[i] = new Character(c1[i]);
+    }
+    Jsonable j = new Jsonable() {
+      public Character[] name =c2;
+    };
+    String s = JSON.toJSON(j);
+    String exp = "{";
+    exp += "\"name\":\"Michael Gottesman\"";
+    exp += "}";
+    System.out.println("Expected:\n" + exp);
+    System.out.println("Actual:\n" +s);
+    assertEquals(s,exp);
+  }
   /**
    * Test of toJSON method, of class JSON.
    * @throws java.lang.Exception 
@@ -287,24 +473,29 @@ public class JSONTest {
     String result = JSON.toJSON(o);
     JSONObject jsonExpected = new JSONObject(expResult);
     JSONObject jsonResult = new JSONObject(result);
+    System.out.println("Exepcted:\n" + expResult);
+    System.out.println("Actual:\n" + result);
     assertEquals(0, jsonExpected.compareTo(jsonResult));
   }
 
-//  @Test
-//  public void testBoth() throws Exception {
-//    System.out.println("testBoth");
-//    Object o = new BothJsonableTestObject();
-//    // TODO: Change file location so test data is independent of file system
-//    // In a rush and should be an easy change
-//    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject2.json"));
-//    String s = "";
-//    String expResult = "";
-//    while ((s = r.readLine()) != null) {
-//      expResult += s;
-//    }
-//    String result = JSON.toJSON(o);
-//    JSONObject jsonExpected = new JSONObject(expResult);
-//    JSONObject jsonResult = new JSONObject(result);
-//    assertEquals(0, jsonExpected.compareTo(jsonResult));
-//  }
+  // Test is broken please dont use Jsonable Objects with @TOJSON methods
+  @Test
+  public void testBoth() throws Exception {
+    System.out.println("testBoth");
+    Object o = new BothJsonableTestObject();
+    // TODO: Change file location so test data is independent of file system
+    // In a rush and should be an easy change
+    BufferedReader r = new BufferedReader(new FileReader("src/test/org/json/correct_output_TestJsonableObject2.json"));
+    String s = "";
+    String expResult = "";
+    while ((s = r.readLine()) != null) {
+      expResult += s;
+    }
+    String result = JSON.toJSON(o);
+    JSONObject jsonExpected = new JSONObject(expResult);
+    JSONObject jsonResult = new JSONObject(result);
+    System.out.println("Expected:\n" + jsonExpected.toString());
+    System.out.println("Actual:\n" + jsonResult.toString());
+    assertEquals(0, jsonExpected.compareTo(jsonResult));
+  }
   }

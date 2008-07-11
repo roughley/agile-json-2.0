@@ -1396,6 +1396,12 @@ public class JSONObject implements Comparable {
     Iterator iOther =other.sortedKeys();
     while(i.hasNext() || iOther.hasNext()) {
       try {
+        if(!i.hasNext()) {
+          System.out.println("");
+        }
+        if(!iOther.hasNext()) {
+          System.out.println("");
+        }
         String iEObject = (String)i.next();
         String iRObject = (String)iOther.next();
         if (iEObject == null) {
@@ -1421,8 +1427,8 @@ public class JSONObject implements Comparable {
           for(int j = 0;j < a1.length();j++) {
             Object _o1 = a1.get(j);
             Object _o2 = a2.get(j);
-            if(Comparable.class.isAssignableFrom(o1.getClass()) && Comparable.class.isAssignableFrom(o2.getClass())) {
-              if(((Comparable)o1).compareTo((Comparable)o2) != 0) {
+            if(Comparable.class.isAssignableFrom(_o1.getClass()) && Comparable.class.isAssignableFrom(_o2.getClass())) {
+              if(((Comparable)_o1).compareTo((Comparable)_o2) != 0) {
                 return -1;
               }
             } else {

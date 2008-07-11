@@ -243,9 +243,10 @@ public class JSON {
    * @throws java.lang.IllegalAccessException
    * @throws org.json.JSONException 
    */
-  private static boolean jsonifyGetters(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
-    boolean anyOutput = false;
+  private static boolean jsonifyGetters(Object o, Class c, JSONStringer s, HashSet alreadyVisited, boolean initialValue) throws IllegalAccessException, JSONException {
     Method[] methods = c.getMethods();
+    boolean initAnyOutputValue = initialValue;
+    boolean anyOutput = initialValue;
     for (int i = 0; i < methods.length; i++) {
       TOJSON a;
       if (methods[i].getParameterTypes().length == 0 && (a = methods[i].getAnnotation(TOJSON.class)) != null) {
@@ -256,7 +257,10 @@ public class JSON {
           continue;
         }
         if (!alreadyVisited.contains(returnValue)) {
-          anyOutput = true;
+          if (!anyOutput) {
+            anyOutput = true;
+            s.object();
+          }
           if (a.contentEndIndex() == -1) {
             s.key(methods[i].getName().substring(a.prefixEndIndex()).toLowerCase());
           } else {
@@ -267,6 +271,9 @@ public class JSON {
           continue;
         }
       }
+    }
+    if (anyOutput && !initAnyOutputValue) {
+      s.endObject();
     }
     return anyOutput;
   }
@@ -286,7 +293,9 @@ public class JSON {
       return "null";
     }
 
+    // Get class for reflection purposes
     Class c = o.getClass();
+
     // Make sure that given a primitive, it is not added to already visited
     // This is for two reasons:
     // 1. Classes are sealed so can not point to other objects.
@@ -297,19 +306,40 @@ public class JSON {
       alreadyVisited.add(o);
     }
 
+    // Use no excape stringer b/c we want to escape strings only once,
+    // to stop thigns like \\\\\\n, etc.
     JSONStringer s = new NoEscapesStringer();
 
     // If Jsonable, handle like a Jsonable
     if ((Jsonable.class).isAssignableFrom(c)) {
       s.object();
+      // Jsonify Fields
+      jsonifyGetters(o, c, s, alreadyVisited, true);
       jsonifyFields(o, c, s, alreadyVisited);
-      jsonifyGetters(o, c, s, alreadyVisited);
       s.endObject();
     } else if ((Object[].class).isAssignableFrom(c)) {
-      jsonifyArray(o, s, alreadyVisited);
+      if((Byte[].class).isAssignableFrom(c)) {
+        Byte[] B = (Byte[])o;
+        byte[] b = new byte[B.length];
+        for(int i = 0;i < B.length;i++) {
+          b[i] = B[i].byteValue();
+        }
+        return "\"" + escape(new String(b)) + "\"";
+      } else if ((Character[].class).isAssignableFrom(c)) {
+        Character[] C = (Character[])o;
+        char[] primitiveC = new char[C.length];
+        for(int i = 0;i < C.length;i++) {
+          primitiveC[i] = C[i].charValue();
+        }
+        return "\"" + escape(new String(primitiveC)) + "\"";
+      } else {
+        jsonifyArray(o, s, alreadyVisited);
+      }
     } else {
       // Check this part
       if (PRIMITIVEARRAYS.contains(c)) {
+        // If byte array return as a string. Otherwise returns
+        // as a space delimited Hex Representation of the bytes
         if ((byte[].class).isAssignableFrom(c)) {
           try {
             return "\"" + escape(new String((byte[]) o, "UTF-8")) + "\"";
@@ -317,25 +347,55 @@ public class JSON {
             return "\"" + escape(new String((byte[]) o)) + "\"";
           }
         } else if ((char[].class).isAssignableFrom(c)) {
-            return "\"" + escape(new String((char[]) o)) + "\"";
+          return "\"" + escape(new String((char[]) o)) + "\"";
         } else {
           s.array();
-          Object[] array = ((Object[]) o);
-          for (int i = 0; i < array.length; i++) {
-            s.value(String.valueOf(array[i]));
+          if ((short[].class).isAssignableFrom(c)) {
+            short[] array = (short[]) o;
+            for (short b : array) {
+              s.value(String.valueOf(b));
+            }
+          } else if ((int[].class).isAssignableFrom(c)) {
+            int[] array = (int[]) o;
+            for (int b : array) {
+              s.value(String.valueOf(b));
+            }
+          } else if ((long[].class).isAssignableFrom(c)) {
+            long[] array = (long[]) o;
+            for (long b : array) {
+              s.value(String.valueOf(b));
+            }
+          } else if ((float[].class).isAssignableFrom(c)) {
+            float[] array = (float[]) o;
+            for (float b : array) {
+              s.value(String.valueOf(b));
+            }
+          } else if ((double[].class).isAssignableFrom(c)) {
+            double[] array = (double[]) o;
+            for (double b : array) {
+              s.value(String.valueOf(b));
+            }
+          } else {
+            boolean[] array = (boolean[]) o;
+            for (boolean b : array) {
+              s.value(String.valueOf(b));
+            }
           }
           s.endArray();
         }
-      } else if (c.isPrimitive() || PRIMITIVES.contains(c) || c == JSONObject.class || c == JSONArray.class) {
+      } else if ((c != String.class && c != Character.TYPE && c != Character.class) && (PRIMITIVES.contains(c) || c == JSONObject.class || c == JSONArray.class)) {
         return o.toString();
-      } else if (c == String.class) {
+      } else if (c == String.class || c == Character.TYPE || c == Character.class) {
         return '"' + escape(o.toString()) + '"';
       } else {
-        s.object();
-        if (!jsonifyGetters(o, c, s, alreadyVisited)) {
-
+        // Note json object is created inside jsonify getters
+        // this is because we dont know whether or not we have
+        // methods which are annotated as jsonable until we get in there.
+        // This allows us to just tostring the output if no methods
+        // have been annotated.
+        if (!jsonifyGetters(o, c, s, alreadyVisited, false)) {
+          return "\"" + escape(o.toString()) + "\"";
         }
-        s.endObject();
       }
     }
     return s.toString();
