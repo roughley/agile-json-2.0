@@ -33,11 +33,14 @@ import java.lang.annotation.Target;
  * 
  * Thus getObject() => { "object" : "method_result" }
  * And getName() => { "name" : "method_result" }
+ * Was prefixEndIndex
+ * and contentEndIndex
  */
 
   @Target({ElementType.METHOD})
   @Retention(RetentionPolicy.RUNTIME)
   public @interface TOJSON {
-    int prefixEndIndex() default 3;
-    int contentEndIndex() default -1;
+    int prefixLength() default 3;
+    int contentLength() default -1;
+    String fieldName() default "";
   }
