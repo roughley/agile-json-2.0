@@ -95,7 +95,7 @@ public class JSONTest {
     }
 
     @TOJSON
-    public Integer getYears_of_college() {
+    public Integer getYearsOfCollege() {
       return years_of_college;
     }
     }
@@ -118,7 +118,7 @@ public class JSONTest {
     String result = JSON.toJSON(o);
     JSONObject jsonExpected = new JSONObject(expResult);
     JSONObject jsonResult = new JSONObject(result);
-    System.out.println("Exepcted:\n" + expResult);
+    System.out.println("Expected:\n" + expResult);
     System.out.println("Actual:\n" + result);
     assertEquals(0, jsonExpected.compareTo(jsonResult));
   }

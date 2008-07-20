@@ -20,10 +20,11 @@ package org.json;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.annotation.*;
 import java.util.HashSet;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Importand Notes on usage:
@@ -35,6 +36,8 @@ import java.util.HashSet;
  * @author gottesmm
  */
 public class JSON {
+
+  private static Pattern decamelcasePattern = Pattern.compile("([a-z_0-9]+)([A-Z])");
 
   /**
    * This method takes in a primitive that has been converted to an object
@@ -62,6 +65,24 @@ public class JSON {
       return new Double((Double) v);
     } else {
       throw new Exception("Unknown Primitive");
+    }
+  }
+
+  public static String deCamelCase(String s) {
+    Matcher m = decamelcasePattern.matcher(s.substring(1));
+    if(!m.find()) {
+      return s.toLowerCase();
+    }
+    
+    String res = String.valueOf(Character.toLowerCase(s.charAt(0)));
+    int lastEnd;
+    while(true) {
+      res += m.group(1);
+      res += "_" + m.group(2).toLowerCase();
+      lastEnd = m.end();
+      if(!m.find()) {
+        return res + s.substring(lastEnd+1);
+      }
     }
   }
 
@@ -261,11 +282,11 @@ public class JSON {
             s.object();
           }
           if (a.fieldName().length() != 0) {
-            s.key(a.fieldName());
+            s.key(JSON.deCamelCase(a.fieldName()));
           } else if (a.contentLength() == -1) {
-            s.key(methods[i].getName().substring(a.prefixLength()).toLowerCase());
+            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength())));
           } else {
-            s.key(methods[i].getName().substring(a.prefixLength(), a.contentLength()).toLowerCase());
+            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.contentLength())));
           }
           s.value(JSON.toJSON(returnValue, alreadyVisited));
         } else {
