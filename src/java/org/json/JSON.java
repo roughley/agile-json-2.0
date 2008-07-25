@@ -276,6 +276,20 @@ public class JSON {
         } catch (Exception e) {
           continue;
         }
+//        if(returnValue == null) {
+//          if (!anyOutput) {
+//            anyOutput = true;
+//            s.object();
+//          }
+//          if (a.fieldName().length() != 0) {
+//            s.key(JSON.deCamelCase(a.fieldName()));
+//          } else if (a.contentLength() == -1) {
+//            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength())));
+//          } else {
+//            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.contentLength())));
+//          }
+//          s.value(JSON.toJSON(returnValue, alreadyVisited));         
+/*        } else **/
         if (!alreadyVisited.contains(returnValue)) {
           if (!anyOutput) {
             anyOutput = true;
@@ -338,14 +352,20 @@ public class JSON {
         Byte[] B = (Byte[]) o;
         byte[] b = new byte[B.length];
         for (int i = 0; i < B.length; i++) {
-          b[i] = B[i].byteValue();
+          if(B[i] != null)
+            b[i] = B[i].byteValue();
+          else
+            b[i] = 48;
         }
         return "\"" + escape(new String(b)) + "\"";
       } else if ((Character[].class).isAssignableFrom(c)) {
         Character[] C = (Character[]) o;
         char[] primitiveC = new char[C.length];
         for (int i = 0; i < C.length; i++) {
-          primitiveC[i] = C[i].charValue();
+          if(C[i] != null)
+            primitiveC[i] = C[i].charValue();
+          else
+            primitiveC[i] = '0';
         }
         return "\"" + escape(new String(primitiveC)) + "\"";
       } else {

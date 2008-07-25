@@ -98,6 +98,20 @@ public class JSONTest {
     public Integer getYearsOfCollege() {
       return years_of_college;
     }
+    
+    @TOJSON
+    public Character[] getYearsOfBlah() {
+      Character[] s = new Character[1];
+      s[0] = null;
+      return s;
+    }
+    
+    @TOJSON
+    public Byte[] getYearsOfBlah2() {
+      Byte[] b = new Byte[1];
+      b[0] = null;
+      return b;
+    }
     }
 
   public JSONTest() {
