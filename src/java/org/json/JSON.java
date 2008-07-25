@@ -257,6 +257,7 @@ public class JSON {
    * and the second word capitalization being lowered. So you get
    * object.
    * @param o
+   * @param methods 
    * @param c
    * @param s
    * @param alreadyVisited
@@ -264,8 +265,7 @@ public class JSON {
    * @throws java.lang.IllegalAccessException
    * @throws org.json.JSONException 
    */
-  private static boolean jsonifyGetters(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
-    Method[] methods = c.getMethods();
+  private static boolean jsonifyGetters(Object o, Method[] methods, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
     boolean anyOutput = false;
     for (int i = 0; i < methods.length; i++) {
       TOJSON a;
@@ -399,7 +399,7 @@ public class JSON {
           }
           s.endArray();
         }
-      } else if ((c != String.class && c != Character.TYPE && c != Character.class) && (PRIMITIVES.contains(c) || c == JSONObject.class || c == JSONArray.class)) {
+      } else if (String.class.isAssignableFrom(c) || Character.TYPE.isAssignableFrom(c) || Character.class.isAssignableFrom(c) || PRIMITIVES.contains(c) || JSONObject.class.isAssignableFrom(c) || JSONArray.class.isAssignableFrom(c)) {
         return o.toString();
       } else if (c == String.class || c == Character.TYPE || c == Character.class) {
         return '"' + escape(o.toString()) + '"';
@@ -409,7 +409,10 @@ public class JSON {
         // methods which are annotated as @TOJSON until we get in there.
         // This allows us to just tostring the output if no methods
         // have been annotated.
-        if (!jsonifyGetters(o, c, s, alreadyVisited)) {
+        Method[] m = c.getMethods();
+        if(m.length != 0) {
+          jsonifyGetters(o,m,s,alreadyVisited);
+        } else {
           return "\"" + escape(o.toString()) + "\"";
         }
       }
