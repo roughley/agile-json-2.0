@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.lang.reflect.Method;
 import java.lang.annotation.*;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -134,12 +136,12 @@ public class JSON {
     }
   }
   private static Class[] _primitives = {Object.class, String.class, Short.class, Byte.class, Character.class, Boolean.class, Integer.class, Float.class, Double.class, Long.class};
-  protected static HashSet PRIMITIVES = new HashSet(Arrays.asList(_primitives));
+  protected static Set PRIMITIVES = new HashSet(Arrays.asList(_primitives));
   private static Class[] _primitivearrays = {
     Short[].class, Byte[].class, Character[].class, Boolean[].class, Integer[].class, Float[].class, Double[].class, Long[].class,
     short[].class, byte[].class, char[].class, boolean[].class, int[].class, float[].class, double[].class, long[].class
   };
-  protected static HashSet PRIMITIVEARRAYS = new HashSet(Arrays.asList(_primitivearrays));
+  protected static Set PRIMITIVEARRAYS = new HashSet(Arrays.asList(_primitivearrays));
 
   /**
    * Public interface to protected toJSON method.
@@ -149,7 +151,7 @@ public class JSON {
    * @throws java.lang.IllegalAccessException
    */
   public static String toJSON(Object o) throws JSONException, IllegalAccessException {
-    HashSet alreadyVisited = new HashSet();
+    Set alreadyVisited = new SpecialHashSet();
     return JSON.toJSON(o, alreadyVisited);
   }
 
@@ -229,7 +231,7 @@ public class JSON {
 //   * @throws java.lang.IllegalAccessException
 //   * @throws org.json.JSONException 
 //   */
-//  private static void jsonifyFields(Object o, Class c, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
+//  private static void jsonifyFields(Object o, Class c, JSONStringer s, Set alreadyVisited) throws IllegalAccessException, JSONException {
 //    Field[] fields = c.getFields();
 //    for (int i = 0; i < fields.length; i++) {
 //      Object fieldValue = fields[i].get(o);
@@ -239,7 +241,7 @@ public class JSON {
 //      }
 //    }
 //  }
-  public static void jsonifyArray(Object o, JSONStringer s, HashSet alreadyVisited) throws JSONException, IllegalAccessException {
+  public static void jsonifyArray(Object o, JSONStringer s, Set alreadyVisited) throws JSONException, IllegalAccessException {
     s.array();
     Object[] array = (Object[]) o;
     Object _o;
@@ -265,7 +267,7 @@ public class JSON {
    * @throws java.lang.IllegalAccessException
    * @throws org.json.JSONException 
    */
-  private static boolean jsonifyGetters(Object o, Method[] methods, JSONStringer s, HashSet alreadyVisited) throws IllegalAccessException, JSONException {
+  private static boolean jsonifyGetters(Object o, Method[] methods, JSONStringer s, Set alreadyVisited) throws IllegalAccessException, JSONException {
     boolean anyOutput = false;
     for (int i = 0; i < methods.length; i++) {
       TOJSON a;
@@ -276,20 +278,20 @@ public class JSON {
         } catch (Exception e) {
           continue;
         }
-//        if(returnValue == null) {
-//          if (!anyOutput) {
-//            anyOutput = true;
-//            s.object();
-//          }
-//          if (a.fieldName().length() != 0) {
-//            s.key(JSON.deCamelCase(a.fieldName()));
-//          } else if (a.contentLength() == -1) {
-//            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength())));
-//          } else {
-//            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.contentLength())));
-//          }
-//          s.value(JSON.toJSON(returnValue, alreadyVisited));         
-/*        } else **/
+        if(returnValue == null) {
+          if (!anyOutput) {
+            anyOutput = true;
+            s.object();
+          }
+          if (a.fieldName().length() != 0) {
+            s.key(JSON.deCamelCase(a.fieldName()));
+          } else if (a.contentLength() == -1) {
+            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength())));
+          } else {
+            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.contentLength())));
+          }
+          s.value(JSON.toJSON(returnValue, alreadyVisited));         
+        } else {
         if (!alreadyVisited.contains(returnValue)) {
           if (!anyOutput) {
             anyOutput = true;
@@ -308,6 +310,7 @@ public class JSON {
         }
       }
     }
+    }
     if (anyOutput) {
       s.endObject();
     }
@@ -322,7 +325,7 @@ public class JSON {
    * @throws org.json.JSONException
    * @throws java.lang.IllegalAccessException
    */
-  protected static String toJSON(Object o, HashSet alreadyVisited) throws JSONException, IllegalAccessException {
+  protected static String toJSON(Object o, Set alreadyVisited) throws JSONException, IllegalAccessException {
 
     // If null return JSON's null value, null
     if (o == null) {
@@ -419,10 +422,10 @@ public class JSON {
           }
           s.endArray();
         }
-      } else if (String.class.isAssignableFrom(c) || Character.TYPE.isAssignableFrom(c) || Character.class.isAssignableFrom(c) || PRIMITIVES.contains(c) || JSONObject.class.isAssignableFrom(c) || JSONArray.class.isAssignableFrom(c)) {
-        return o.toString();
-      } else if (c == String.class || c == Character.TYPE || c == Character.class) {
+      } else if (String.class.isAssignableFrom(c) || (Character.TYPE).isAssignableFrom(c) || (Character.class).isAssignableFrom(c)) {
         return '"' + escape(o.toString()) + '"';
+      } else if (PRIMITIVES.contains(c) || JSONObject.class.isAssignableFrom(c) || JSONArray.class.isAssignableFrom(c)) {
+        return o.toString();
       } else {
         // Note json object is created inside jsonify getters
         // this is because we dont know whether or not we have
@@ -431,7 +434,9 @@ public class JSON {
         // have been annotated.
         Method[] m = c.getMethods();
         if(m.length != 0) {
-          jsonifyGetters(o,m,s,alreadyVisited);
+          if(!jsonifyGetters(o,m,s,alreadyVisited)) {
+            return "\"" + escape(o.toString()) + "\"";
+          }
         } else {
           return "\"" + escape(o.toString()) + "\"";
         }

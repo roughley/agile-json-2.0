@@ -19,6 +19,9 @@ package org.json;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -107,10 +110,10 @@ public class JSONTest {
     }
     
     @TOJSON
-    public Byte[] getYearsOfBlah2() {
-      Byte[] b = new Byte[1];
-      b[0] = null;
-      return b;
+    public Collection getYearsOfBlah2() {
+      HashSet<Byte> h = new HashSet<Byte>();
+      h.add(null);
+      return h;
     }
     }
 
@@ -130,10 +133,10 @@ public class JSONTest {
       expResult += s;
     }
     String result = JSON.toJSON(o);
-    JSONObject jsonExpected = new JSONObject(expResult);
-    JSONObject jsonResult = new JSONObject(result);
     System.out.println("Expected:\n" + expResult);
     System.out.println("Actual:\n" + result);
+    JSONObject jsonExpected = new JSONObject(expResult);
+    JSONObject jsonResult = new JSONObject(result);
     assertEquals(0, jsonExpected.compareTo(jsonResult));
   }
   }
