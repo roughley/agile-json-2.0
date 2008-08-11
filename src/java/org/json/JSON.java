@@ -17,6 +17,7 @@
  */
 package org.json;
 
+import org.json.special.SpecialHashSet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;

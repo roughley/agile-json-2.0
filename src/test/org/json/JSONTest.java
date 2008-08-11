@@ -20,7 +20,6 @@ package org.json;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -43,18 +42,18 @@ public class JSONTest {
     public byte[] test;
 
     public GetAccsrJsonableTestObject() {
-      name = "Michael Gottesman";
-      age = 18;
-      years_of_college = 1;
+      name = "John Smith";
+      age = 22;
+      years_of_college = 4;
       weight = 160.0;
       height = 60.1;
       relatives = new GetAccsrJsonableTestObject[3];
-      relatives[0] = new GetAccsrJsonableTestObject("Jacob Saxon");
-      relatives[1] = new GetAccsrJsonableTestObject("Shoshi Gottesman");
-      relatives[2] = new GetAccsrJsonableTestObject("Leopold Gottesman");
+      relatives[0] = new GetAccsrJsonableTestObject("Joe Bob");
+      relatives[1] = new GetAccsrJsonableTestObject("John Shmoe");
+      relatives[2] = new GetAccsrJsonableTestObject("Sally Lee");
       friends = new String[2];
-      friends[0] = new String("Gregory Hillman");
-      friends[1] = new String("Alex Fleming");
+      friends[0] = new String("Banana Pear");
+      friends[1] = new String("Orange Banana");
       test = new String("test123412341234").getBytes();
     }
 
@@ -133,8 +132,6 @@ public class JSONTest {
       expResult += s;
     }
     String result = JSON.toJSON(o);
-    System.out.println("Expected:\n" + expResult);
-    System.out.println("Actual:\n" + result);
     JSONObject jsonExpected = new JSONObject(expResult);
     JSONObject jsonResult = new JSONObject(result);
     assertEquals(0, jsonExpected.compareTo(jsonResult));
