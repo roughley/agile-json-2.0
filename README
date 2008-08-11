@@ -1,35 +1,86 @@
 This is the Java Json 2.0 Library. It's main usage is to automatically serialize
 java classes to syntatically correct Json.
 
-The two main ways of using it are:
+Its main usage is to annotate Java Objects Methods with the @TOJSON annotation.
+This tells the framework when you run the object through the method JSON.toJSON
+that this method's output should be serialized to JSON.
 
-1. Have a class implement the Jsonable Interface
-This signals the framework that it is ok to take the public variables of this class
-and create a json object of the form:
+Some notes:
 
-variable_name : variable_value.
+1. byte[]/Byte[]/char[]/Char[] are automatically serialized to Strings. All other
+primitive arrays are serialized to a [1,2,3,4...] form.
 
-Keep in mind that the ACTUAL variable name is the variable name that comes out
-in the Json. So if I had a class named:
+2. All method names will have the first 3 letters removed and be decamelcased.
+See #3 for information about the former. With regards to the latter, this
+means that:
 
-Object o = new Object() {
-       public String myName = "Michael";
-       protected String myProtectedName = "Samuel";
-       private String myPrivateName = "Gottesman";
-};
+BigFatString
 
-The resultant would be:
-JSON.toJSON(o) => {"myName":"Michael"};
+would become:
 
-2. Annotate a non-JsonableObject's method with the @TOJSON annotation. This tells the framework
-that that method is a getter method whose result is to be serialized to JSON.
+big_fat_string
 
-Two main things here to notice:
-	a. The getter method must have no arguements
-	b. The name of the resulting json field will be the method's name
-		lower cased with the first three letters dropped (get does
-		not look good in variable names =p)
+Or in english, all capital letters except for the first character of the string
+(if it is capitalized) are replaced by their lower case version and a _. If
+the first character is capitalized, it is just downcased.
 
-NOTE JSONABLE OBJECTS w/@TOJSON METHODS WILL RESULT IN ERRORS. DO THAT AT YOUR OWN RISK.
+3. @TOJSON(prefixLength = ?, contentLength = ?, fieldName = ?)
 
-I hope that this is of use to you as much as it has been to me.
+There are three properties of @TOJSON that you can use to control the
+field names of your json objects. By default it is assumed that you will
+annotate getter methods with @TOJSON. In java the getter naming convention
+is:
+
+getThisObject()
+
+So java-json would then take this method's name and serialize it to:
+
+"this_object":RETURN_VALUE
+
+where RETURN_VALUE is whatever the return value of getThisObject is. Lets say
+you want to serialize a boolean query like:
+
+isObjectBig()
+
+If you leave it as is, it will be converted by java-json to:
+
+bject_big
+
+That is no good. so instead of marking isObjectBig() with just @TOJSON, you
+mark it instead @TOJSON(prefixLength = 2). This instructs java-json to
+only remove the first 2 characters of the method name instead of the first 3.
+Then you will get:
+
+"object_big":BOOLEAN
+
+which is what you want. Lets say you have a very complicated method name like:
+
+isValueAString();
+
+Here you only want a substring of the method name. How would you specify that?
+Obviously you can't just use @TOJSON(prefixLength = ?) or @TOJSON because you
+would get something ugly. Instead you combine prefixLength and contentLength,
+to get a substring of the method name. This looks like:
+
+@TOJSON(prefixLength = ?, contentLength = ?)
+
+or in this specific case:
+
+@TOJSON(prefixLength = 2, contentLength = 5)
+
+which would then take the substring of the method name at indexes 2 and 7,
+resulting in the field name:
+
+"value":STRING
+
+Of course is this is not good enough for you (demanding customers ; p), you
+can just name the field to whatever you want by annotating the method with
+@TOJSON(fieldName = "STRING"). Whatever is the decamelcased value of String, will be the
+value of the field, no matter the method name. So if I went
+
+@TOJSON(fieldName = "FrogsLionsBears)
+getMyBigString() { ...
+
+The output would be:
+
+"frogs_lions_bears":STRING
