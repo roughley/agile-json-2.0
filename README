@@ -21,8 +21,8 @@ would become:
 big_fat_string
 
 Or in english, all capital letters except for the first character of the string
-(if it is capitalized) are replaced by their lower case version and a _. If
-the first character is capitalized, it is just downcased.
+(if it is capitalized) are replaced by a _ and its respective lower case
+version. If the first character is capitalized, it is just downcased.
 
 3. @TOJSON(prefixLength = ?, contentLength = ?, fieldName = ?)
 
