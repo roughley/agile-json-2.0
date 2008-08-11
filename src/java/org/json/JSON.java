@@ -288,7 +288,7 @@ public class JSON {
           } else if (a.contentLength() == -1) {
             s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength())));
           } else {
-            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.contentLength())));
+            s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.prefixLength() + a.contentLength())));
           }
           s.value(JSON.toJSON(returnValue, alreadyVisited));         
         } else {
