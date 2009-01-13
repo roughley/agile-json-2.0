@@ -38,8 +38,14 @@ import java.util.regex.Matcher;
 
 import agilejson.special.SpecialHashSet;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONStringer;
+import org.json.JSONException;
+import org.json.JSONWriter;
+
 /**
- * Importand Notes on usage:
+ * Important Notes on usage:
  * 2. If you use primitives and do not assign a value to them,
  * they will take a default value i.e. 0 for integer.
  * 3. If on the other hand you use the object version of those primitives,
