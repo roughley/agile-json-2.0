@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.json;
+package agilejson;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

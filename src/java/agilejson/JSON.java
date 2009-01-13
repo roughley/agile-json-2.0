@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.json;
+package agilejson;
 
-import org.json.special.SpecialHashSet;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -28,6 +27,8 @@ import java.util.Set;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import agilejson.special.SpecialHashSet;
 
 /**
  * Importand Notes on usage:

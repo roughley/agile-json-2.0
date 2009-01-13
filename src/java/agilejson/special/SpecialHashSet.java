@@ -1,4 +1,13 @@
-   /*
+/*
+ * SpecialHashSet.java
+ * Copyright 2008 Michael Gottesman
+ * 
+ * Modification of AbstractMap.java Copyright Sun MicroSystems, Inc. (see below)
+ * Please use this modified code under the same license (aka GPL2 + CLASSPATH
+ * exception)
+ */
+
+/*
  * Copyright 1997-2006 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -22,7 +31,7 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package org.json.special;
+package agilejson.special;
 
 import java.util.AbstractSet;
 import java.util.Collection;
