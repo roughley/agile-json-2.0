@@ -2,12 +2,11 @@
 
 <project name="AgileJSON" basedir="." default="jar">
 
-  <property name="src.dir"     value="src/java"/>
-  <property name="test.dir"    value="src/test"/>
-  <property name="build.dir"   value="build"/>
-  <property name="lib.dir"     value="lib"/>
-  <property name="classes.dir" value="${build.dir}/classes"/>
-  <property name="jar.dir"     value="${build.dir}/jar"/>
+  <property name="src.dir"       value="src/java"/>
+  <property name="build.dir"     value="build"/>
+  <property name="lib.dir"       value="lib"/>
+  <property name="classes.dir"   value="${build.dir}/classes"/>
+  <property name="jar.dir"       value="${build.dir}/jar"/>
   
   <target name="clean">
     <delete dir="${build.dir}"/>
@@ -33,6 +32,4 @@
     <mkdir dir="${jar.dir}"/>
     <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
   </target>
-  
-  <target name="test" depends="compile,compile-test"/>
 </project>
