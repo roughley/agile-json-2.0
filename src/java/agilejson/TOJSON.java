@@ -50,4 +50,5 @@ import java.lang.annotation.Target;
     int prefixLength() default 3;
     int contentLength() default -1;
     String fieldName() default "";
+    boolean base64() default false;
   }

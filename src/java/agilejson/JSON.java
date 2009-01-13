@@ -151,11 +151,36 @@ public class JSON {
       throw new JSONException("Misplaced key.");
     }
   }
-  private static Class[] _primitives = {Object.class, String.class, Short.class, Byte.class, Character.class, Boolean.class, Integer.class, Float.class, Double.class, Long.class};
+  private static Class[] _primitives = { 
+				         Object.class,
+					 String.class,
+					 Short.class,
+					 Byte.class,
+					 Character.class,
+				         Boolean.class,
+					 Integer.class,
+                                         Float.class,
+			                 Double.class,
+			                 Long.class
+  };
   protected static Set PRIMITIVES = new HashSet(Arrays.asList(_primitives));
   private static Class[] _primitivearrays = {
-    Short[].class, Byte[].class, Character[].class, Boolean[].class, Integer[].class, Float[].class, Double[].class, Long[].class,
-    short[].class, byte[].class, char[].class, boolean[].class, int[].class, float[].class, double[].class, long[].class
+					      Short[].class,
+                                              Byte[].class,
+                                              Character[].class,
+                                              Boolean[].class,
+                                              Integer[].class,
+                                              Float[].class,
+                                              Double[].class,
+                                              Long[].class,
+                                              short[].class,
+                                              byte[].class,
+                                              char[].class,
+                                              boolean[].class,
+                                              int[].class,
+                                              float[].class,
+                                              double[].class,
+                                              long[].class
   };
   protected static Set PRIMITIVEARRAYS = new HashSet(Arrays.asList(_primitivearrays));
 
@@ -236,27 +261,7 @@ public class JSON {
     }
     return sb.toString();
   }
-
-// No Longer used
-//  /**
-//   * Refactor of jsonifyFields
-//   * @param o
-//   * @param c
-//   * @param s
-//   * @param alreadyVisited
-//   * @throws java.lang.IllegalAccessException
-//   * @throws org.json.JSONException 
-//   */
-//  private static void jsonifyFields(Object o, Class c, JSONStringer s, Set alreadyVisited) throws IllegalAccessException, JSONException {
-//    Field[] fields = c.getFields();
-//    for (int i = 0; i < fields.length; i++) {
-//      Object fieldValue = fields[i].get(o);
-//      if (!alreadyVisited.contains(fieldValue)) {
-//        s.key(fields[i].getName());
-//        s.value(JSON.toJSON(fieldValue, alreadyVisited));
-//      }
-//    }
-//  }
+  
   public static void jsonifyArray(Object o, JSONStringer s, Set alreadyVisited) throws JSONException, IllegalAccessException {
     s.array();
     Object[] array = (Object[]) o;
@@ -320,7 +325,12 @@ public class JSON {
           } else {
             s.key(JSON.deCamelCase(methods[i].getName().substring(a.prefixLength(), a.contentLength())));
           }
-          s.value(JSON.toJSON(returnValue, alreadyVisited));
+	  
+	  if (a.base64()) {
+            s.value(Base64.encodeBytes(JSON.toJSON(returnValue, alreadyVisited)));
+          } else {
+            s.value(JSON.toJSON(returnValue, alreadyVisited));
+          }
         } else {
           continue;
         }
@@ -362,7 +372,7 @@ public class JSON {
     }
 
     // Use no excape stringer b/c we want to escape strings only once,
-    // to stop thigns like \\\\\\n, etc.
+    // to stop things like \\\\\\n, etc.
     JSONStringer s = new NoEscapesStringer();
 
     // If Array handle elements
