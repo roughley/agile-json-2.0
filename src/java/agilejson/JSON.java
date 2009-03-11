@@ -327,7 +327,9 @@ public class JSON {
           }
 	  
 	  if (a.base64()) {
-            s.value(Base64.encodeBytes(JSON.toJSON(returnValue, alreadyVisited)));
+          // swap the quotes so they are not encoded in the base64 value
+          String json = JSON.toJSON(returnValue, alreadyVisited);
+            s.value("\""+Base64.encodeBytes(json.substring(1,json.length()-1))+"\"");
           } else {
             s.value(JSON.toJSON(returnValue, alreadyVisited));
           }
